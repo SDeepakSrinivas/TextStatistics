@@ -14,10 +14,13 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
+import org.jfree.ui.RefineryUtilities;
+
 public class MostFrequent {
 	
 
-	
+
+	   
 	public static void main(String[] args) {
 		ArrayList<String> lines = new ArrayList<String>();
 		
@@ -30,8 +33,10 @@ public class MostFrequent {
 	private static void printStats(String path1) {
 		p("Statistics for "+ path1+" :: \n");
 		
-		ArrayList freqWords1 = getFreqWords(path1);
-		p("The 100 most frequent words are " + freqWords1.toString()+"\n");
+		HashMap<String,Integer> freqWords = getFreqWords(path1);
+		p("The 10most frequent words are " + freqWords.toString()+"\n");
+		makePieChart(freqWords);
+		
 		
 		int avgSentLengthLetters = avgSentenceLengthLetters(path1);
 		p("The avg no of letters in a sentence is "+avgSentLengthLetters+"\n");
@@ -44,8 +49,26 @@ public class MostFrequent {
 		
 		int countPara = countPara(path1);
 		p("The number of words per paragraph is "+ countPara+"\n");
+		
+		makeBarGraph(avgSentLengthLetters,avgSentLengthWords,countPunc,countPara);
 	
 		p("\n");
+		
+	}
+
+	private static void makeBarGraph(int avgSentLengthLetters, int avgSentLengthWords, int countPunc, int countPara) {
+		
+		 BarChart chart = new BarChart("Text Statistics","", avgSentLengthLetters, avgSentLengthWords, countPunc, countPara);
+	      chart.pack( );        
+	      RefineryUtilities.centerFrameOnScreen( chart );        
+	      chart.setVisible( true ); 
+	}
+
+	private static void makePieChart(HashMap<String, Integer> freqWords) {
+		PieChart demo = new PieChart("Most Frequent Words",freqWords);
+		demo.setSize( 1000 , 1000 );    
+	    RefineryUtilities.centerFrameOnScreen( demo );    
+	    demo.setVisible(true);
 		
 	}
 
@@ -188,7 +211,7 @@ private static int avgSentenceLengthWords(String path) {
 	
 	
 	
-	private static ArrayList getFreqWords(String string) {
+	private static HashMap<String,Integer> getFreqWords(String string) {
 		
 		String[] lineSep = {""};
 		String[] delims = {":",".","-","!","?",",","'","\"","[","]"};
@@ -206,11 +229,11 @@ private static int avgSentenceLengthWords(String path) {
 						lines.set(i,lines.get(i).replace(delims[j],""));
 				}
 				
-				ArrayList<String> freqWords = getWordFreqMap(lines);
-		return freqWords;
+				return getWordFreqMap(lines);
+	
 	}
 
-	private static ArrayList<String> getWordFreqMap(ArrayList<String> lines) {
+	private static HashMap<String,Integer> getWordFreqMap(ArrayList<String> lines) {
 		HashMap<String,Integer> wordFreq = new HashMap<String,Integer>();
 		for(int i = 0; i<lines.size(); i++) {
 			String[] words = lines.get(i).split(" ");
@@ -224,13 +247,13 @@ private static int avgSentenceLengthWords(String path) {
 		}
 		
 		Map<Integer, String> map = sortByValues(wordFreq); 
-		ArrayList<String> freqWords = new ArrayList<String>();
+		HashMap<String,Integer> freqWords = new HashMap<String,Integer>();
 	      Set set2 = map.entrySet();
 	      Iterator iterator2 = set2.iterator();
 	      int cnt = 0;
-	      while(iterator2.hasNext() && cnt<100) {
+	      while(iterator2.hasNext() && cnt<10) {
 	           Map.Entry me2 = (Map.Entry)iterator2.next();
-	           freqWords.add(me2.getKey()+"");
+	           freqWords.put(me2.getKey()+"",(Integer)me2.getValue());
 	           cnt++;
 	      }
 	      return freqWords;
